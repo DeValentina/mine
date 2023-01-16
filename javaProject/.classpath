@@ -7,5 +7,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.8_202"/>
+	<classpathentry kind="lib" path="libs/ojdbc6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
