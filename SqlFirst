@@ -1,0 +1,10 @@
+select ename, job, hiredate, deptno from emp
+where hiredate < '2005-01-01'
+order by hiredate desc;
+
+select deptno, sal, ename from emp
+where deptno in(20,30)
+order by ename;
+
+select ename 이름, sal 급여, sal*12 연봉,  (sal*12)*1.5 보너스 from emp
+order by 보너스 desc;
