@@ -637,4 +637,330 @@ decode(substr(jumin,7,1),
 from student
 where deptno1=101;
 
- 
+--ANSI용 : 오라클과 달리 from절의 ,콤마 대신 left rifgt outer join을 쓰며 또한 where 절 대신 on으로 대체 
+select e.detpno 부서번호1, e.name 사원이름, d.deptno 부서번호2, d.dname 부서이름
+from emp e right outer join dept d
+on e.deptno = d.deptno;
+
+--ANSI 새로운 국제표준
+--학생테이블 학과테이블을 조인해서 학과번호, 학과이름, 학생이름 출력
+-- (오라클 query문)
+select deptno1 학과번호, dname 학과이름, name 학생이름
+from student s, department b --조인할 테이블들
+where s.deptno1 = b.deptno
+order by 학과번호;
+
+--(ansi query문)
+--from절 쉼표대신 inner join 또는 join
+--where 대신 on
+select deptno1 학과번호, dname 학과이름, name 학생이름
+from student s inner join department b --조인할 테이블들
+on s.deptno1 = b.deptno
+order by 학과번호;
+
+--ANSI
+select e.empno, d.dname
+from emp e inner join dept d --그냥 join도 가능
+on e.deptno = d.deptno;
+
+--조인칼럼 이름이 같을때는 on대신 using 사용(참조하는 칼럼명이 동일한 경우에만 사용가능)
+select e.empno, d.dname
+from emp e join dept d
+using (deptno);
+
+--학생테이블, 교수테이블을 조인해서 학생이름, 학과번호, 지도교수이름을 출력
+select s.name 학생이름, s.deptno1 학과번호, p.name 교수이름
+from student s, professor p
+where s.profno = p.profno;
+
+select * from student;
+select * from professor;
+--학생 테이블, 교수테이블을 조인해서 학생이름, 학과번호, 지도교수이름을 출력
+--(단, 지도교수가 배정되지 않은 학생의 명단도 모두 출력)
+--오라클용
+select s.name 학생이름, s.deptno1 학과번호, p.name 교수이름
+from student s, professor p
+where s.profno = p.profno(+);
+
+--ansi용 : 양쪽 outer join 가능
+select s.name 학생이름, s.deptno1 학과번호, p.name 교수이름
+from student s left outer join professor p
+where s.profno = p.profno;
+
+
+--학생테이블, 교수테이블을 조인해서 학생이름, 학과번호, 지도교수이름을 출력(단, 지도학생이 없는 교수까지 출력)
+--오라클용
+select s.name 학생이름, s.deptno1 학과번호, p.name 교수이름
+from student s, professor p
+where s.profno(+) = p.profno;--오라클은 불가능(+)를 양쪽에 쓸 수 없음
+
+--union/ union all(조회환 다수의 select문을 하나로 합칠때 사용)
+select deptno from emp;
+select deptno from dept;
+
+select deptno from emp
+union --중복이 제거되고 정렬된 결과값 얻음
+select deptno from dept;
+
+select deptno from emp
+union all --중복이 제거되지 않고 단순 합쳐진 결과값이 얻어짐. 단순 합치는 것으로 속도가 빠르다
+select deptno from dept;
+
+--intersect : 교집합을 나타낼 때 사용되는데, 두 쿼리간 같은 값들을 추출해서 보여준다
+--부서번호가 20번이고 직책이 '사원'인 사번, 이름, 직책, 부서번호를 출력
+select empno, ename, job, deptno
+from emp
+where deptno = 20;
+intersect
+select empno, ename, job, deptno
+from emp
+where job= '사원';
+
+--minus : 차집합을 나타낼때 사용되는데, 선행 select 결과에서 다음 select 결과와 겹치는 부분을 제외한 나머지 부분 추출
+select empno, ename, job, deptno
+from emp
+where deptno = 20;
+minus
+select empno, ename, job, deptno
+from emp
+where job= '사원';
+
+--테이블 생성(상품테이블)
+create table product(
+product_code varchar2(20) not null primary key;
+product_name varchar2(50) not null,
+price number default 0,
+company varchar2(50),
+make_date date default sysdate
+);
+
+insert into product values ('A1', '아이폰', 900000, '애플', '2012-09-01');
+insert into product values ('A2', '갤럭시노트',1000000, '삼성', '2018-08-01');
+insert into product values ('A1', '갤럭시S9', 1200000, '삼성', '2019-10-01');
+select * from product;
+
+--판매테이블
+create table product_sales (
+product_code varchar2(20) not null,
+amount number default 0
+);
+
+insert into product_sales values ('A1',100);
+insert into product_sales values ('A2',200);
+insert into product_sales values ('A3',300);
+select * from product_sales;
+insert into product_sales values ('A4',300);
+
+drop table product_sales;
+--foreign key(외래키) : 다른테이블의 키값을 가져와서 현재테이블에 데이터 입력시 참조
+create table product_sales {
+product_code varchar2(20) not null references product(product_code),
+amount number default 0
+);
+
+--상품코드, 상품이름, 제조사, 단가, 수량, 금액
+select p.product_code 상품코드, product_name 상품이름, company 제조사, price 단가, amount 수량, price*amount 금액
+from product p, product_sales s
+where p.product_code = s.product_code --조인조건
+
+create or replace view product_sales_v
+as
+select p.product_code 상품코드, product_name 상품이름, company 제조사, price 단가, amount 수량, price*amount 금액
+from product p, product_sales s
+where p.product_code = s.product_code;
+
+--뷰를 테이블처럼 사용할 수 있음
+select * from product_sales_v;
+
+--제조사가 삼성인 제품을 출력
+select * from product_sales_v
+where 제조사 = '삼성';
+
+--뷰를 삭제시
+drop view product_sales_v;
+
+commit;
+
+create table dep(
+id varchar2(10) primary key,
+name varchar2(15) not null,
+location varchar2(50)
+);
+
+alter table dep drop column od;
+
+alter table dep add id varchar2(10) primary key;
+
+DROP TABLE dep;
+
+create table dep(
+id varchar2(10) primary key,
+name varchar2(15) not null,
+location varchar2(50)
+);
+
+insert into dep values('10', '영업부', '서울 강남구');
+savepoint a;
+insert into dep values('20', '회계부', '부산 동래구');
+savepoint b;
+select * from dep;
+
+--데이터 insert
+insert into member (userid, passwd, name, email) values ('kim','1234','김철수','kim@naver.com');
+insert into member (userid, passwd, name, email) values ('hong','1234','홍길동','hong@naver.com');
+
+show parameter undo;
+--undo_retention : delete, update 후에 commit을 했을때부터 지정된 시간(초)까지는 오라클에서 임시로 저장한 데이터로 복구할 수 있음
+--default 속성값은 900으로 900/60=15분
+--commit 후 15분 내에는 데이털르 복구할 수 있음
+--시간을 늘릴 수도 있는데 예를 들어 25분으로 늘리려면
+alter system set undo_retention = 1500;
+
+--데이터 삭제, 커밋
+select * from tab;
+select * from member;
+delete from member where userid = 'kim';
+commit;
+
+--삭제된 레코드 확인
+select * from member as of
+timestamp(systimestamp-interval '15'minute)
+where userid='kim';
+
+--삭제된 레코드 복구
+insert into member select * from member as of
+timestamp(systimestamp-interval '15'minute)
+where userid='kim';
+
+select * from memeber;
+commit;
+
+--그룹 쿼리
+--1) group by 절
+-- 1. 특정 칼럼값이나 표현식을 단위로 집계성 데이터를 보기 위해 집계함수와 함께 사용
+-- 2. select절에 오는 컬럼 또는 값은 모두 group by절에 명시해야 함.(단, 집계함수는 제외)
+-- 3. group by절은 하나 이상의 컬럼 또는 값을 가짐
+-- 4. order by절은 group by절 다음에 위치 (주의: order by절에 오는 컬럼 또는 값은 group by절에 명시한 값 이외의 값은 사용할 수 없음)
+-- 5. where절은 group by절 앞에 위치
+    select count(*), sum(sal), round(avg(sal), 2) 
+    from emp
+    where deptno=30;
+    --위 집계를 group by절을 사용하면 편하다
+    select deptno, count(*), sum(sal), round(avg(sal), 2) 
+    from emp
+    group by deptno;
+    
+    
+    --ename문자열이기 때문에 group by에 넣으면?
+    select deptno, ename, count(*), sum(sal), round(avg(sal), 2) 
+    from emp
+    group by deptno;
+    
+    --수정
+    select deptno, ename, count(*), sum(sal), round(avg(sal), 2) 
+    from emp
+    group by deptno, ename; --ename은 문자타입이어서 반드시 group by절에 표시해야 에러가 안난다
+    
+    --학과별로 교수들의 평균 급여를 출력
+    select deptno, avg(pay)
+    from professor
+    group by deptno;
+    
+    --학과별, 직급별로 교수들의 평균 급여 출력
+    select deptno, avg(pay)
+    from professor
+    group by deptno, position;
+    order by deptno;
+    
+    --having절
+    -- 1. where 조건 이외에 집계함수의 결과로 조건을 주고자 할때사용, group by절과 함께 사용
+    -- 2. 일반적으로 집계함수나 상수가 사용된 조건을 명시하거나 group by절에 명시된 컬럼도 조건으로 사용 가능
+    -- 3.where절과 having절은 동시에 사용 가능
+    
+    --교수의 평균급여가 250이상(집계함수사용결과)이고 학과번호가 200번 이상의 학과의 학과번호, 학과이름,평균급여 출력
+    select p.deptno, d.dname, avg(pay)
+    from professor p, department d
+    where p.deptno = d.deptno
+    group by d.dname, p.deptno
+    having avg(pay) >= 250 and p.deptno >=200;
+    
+    --sql실행순서
+    --from(전체레코드) => where(행 선택) => group by(선택된 행을 요약)
+    -- => having (요약 결과행 선택) => select(컬럼선택) => order by(정렬)
+    
+    --keep함수
+    --오라클에서 keep()함수를 사용하면 group by내에서 최고, 최고순위행 집계, 그룹별로 max 또는 min 수치값은 쉽게 표시할 수 있지만
+    -- max에 해당되는 행의 값 중에서 특정 텍스트 값을 같이 표시하기 위해서는 서브쿼리를 주로 사용한다
+    -- 그러나 keep 사용하면 한번의 쿼리문으로 최저 or 최고에 해당하는 행의 값들을 쉽게 가져올 수 있음
+    --keep 함수는 group by절 over절과 함께 사용해야 한다
+    --ex ) 1등, 2등 두명
+    --dense_rank : 동일한 순위 이후의 등수를 이후의 순위로 계산 ex) 1등, 2등, 2등, 3등
+    --rank : 동일한 순위 이후 등수를 동일한 인원수 만큼 건너뛰고 순위계산 ex) 1등,2등 2등, 4등
+    
+    
+    --예) 직책이 '사원'인 사람중 최저급여를 받는 사람과 최고급여를 받는 사람을 출력
+    select job, min(sal+nvl(comm,0)) as 최저급여, 
+    min(ename) keep(dense_rank first order by sal) as 최저급여자,
+    max(sal + nvl(comm,0)) as 최고급여,
+    max(ename) keep(dense_rank last oder by sal) as 최고급여자 
+    from emp
+    where job in('사원')
+    group by job;
+
+select * from emp;
+select * from dept;
+
+--문제1] 오라클
+select d.deptno, d.dname, e.ename, e.sal
+from emp e, dept d
+where d.deptno = e.deptno;
+
+--문제1] ANSI
+select d.deptno, d.dname, e.ename, e.sal
+from emp e full outer join dept d
+on d.deptno = e.deptno;
+
+--문제2] oracle
+select e.ename, e.job, d.deptno, d.dname
+from emp e, dept d
+where d.deptno = e.deptno
+intersect
+select  e.ename, e.job, d.deptno, d.dname
+from emp e, dept d
+where job in('사원');
+
+--문제2] ANSI
+select e.ename, e.job, d.deptno, d.dname
+from emp e full outer join dept d
+where d.deptno = e.deptno;
+intersect
+select e.ename, e.job, d.deptno, d.dname
+from emp e, dept d
+where job in('사원');
+
+--문제3] oracle
+select e.ename, e.job, d.deptno, d.dname
+from emp e, dept d
+where d.deptno = e.deptno
+intersect
+select  e.ename, e.job, d.deptno, d.dname
+from emp e, dept d
+where ename in('황인태');
+
+--문제4] 오라클
+select e.ename, d.deptno, d.dname, e.sal, e.sal*12+nvl(comm,0)
+from emp e, dept d
+where d.deptno = e.deptno;
+
+--문제4] ANSI
+select e.ename, d.deptno, d.dname, e.sal, e.sal*12+nvl(comm,0)
+from emp e, dept d
+where d.deptno = e.deptno;
+
+--문제5]
+select *
+select empno, mgr
+from emp
+where 
+
+--문제6]
