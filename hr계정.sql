@@ -964,3 +964,285 @@ from emp
 where 
 
 --문제6]
+
+
+  --01-20
+  --1) 메인쿼리와 연관성이 없는 쿼리
+  -- emp테이블에서 급여를 가장 많이 받는 사원정보를 조회
+  select max(sal) from emp;
+  
+  select deptno, ename, sal from emp
+  where sal=800;
+  
+  --위 두단계로 구해야할 질의를 서브쿼리로 해결, 서브쿼리는 ()로 묶어야 하며 ()먼저 연산됨
+  select deptno, ename, sal from emp 
+  where sal = (select max(sal) from emp);
+  
+  -- 사원들의 평균 급여보다 많은 급여를 받는 사원의 모든 정보를 조회
+  select avg(sal) from emp;
+  
+  select * from emp
+  where sal>383.46;
+  
+  -- 서브쿼리
+  select * from emp
+  where sal>(select avg(sal) from emp);
+  
+  -- 사원들의 평균 급여보다 많은 급여를 받는 사원의 이름, 부서명, 급여를 조회
+  select e.ename, d.dname, e.sal
+  from emp e, dept d
+  where e.deptno = d.deptno and e.sal > (select avg(sal) from emp);
+  
+  -- 부서코드 30에 속한 사원 중 최고급여보다 높은 급여를 받는 사원을 조회
+  --1단계) 30번 부서에서 최고 급여 금액확인
+  select max(sal) from emp where deptno=30;
+  
+  --2단계) 485만원 보다 많은 직원 조회
+  select * from emp where sal>485;
+  
+  --3단계) 서브쿼리
+   select * from emp
+   where sal>(select sal from emp where deptno=30);
+  
+  select sal from emp where deptno=30; -- 데이터가 복수행으로 나옴.
+  
+  --단일행으로 리턴받는 max함수를 안쓰면 오류가 날 수 있음.
+  select * from emp
+   where sal> all(select sal from emp where deptno=30); --단 all연산자를 앞에쓰면 오류없이 처리 가능함.
+   
+  -- 메인쿼리와 연관성이 있는 쿼리 : 조인을 사용, 별칭
+  -- 사원이름, 부서코드, 부서명 조회
+  select e.ename, e.deptno, d.dname
+  from emp e, dept d
+  where e.deptno = d.deptno;
+  
+  select e.ename, e.deptno, (select  d.dname  from dept d  where e.deptno = d.deptno)  as dname --컬럼역할하는 서브쿼리
+  from emp e;
+  
+  --실제로는 아래처럼 각각의 부서번호가 반복적으로 진행됨(내부적으로 반복문이 돌고 있음)
+  select e.ename, e.deptno, (select  dname  from dept d  where deptno=30)  as dname --컬럼역할하는 서브쿼리
+  from emp e;
+  
+  -- 부서 평균급여보다 급여가 적은 사원들을 조회
+  --1단계) 
+  select ename, sal, deptno from emp;
+  --2단계)
+  select avg(sal) from emp where deptno=30;
+  --3단계)
+  select ename, sal, deptno, (select avg(sal) from emp where deptno=20) 
+  from emp e;
+  --4단계) deptno=10 대신 e.deptno로 처리
+   select ename, sal, deptno, (select avg(sal) from emp where deptno=e.deptno) 
+  from emp e
+  order by deptno;
+  --5단계) 부서평균급여보다 적은 사원들만 조회
+  select ename, sal, deptno, (select avg(sal) from emp where deptno=e.deptno) 부서평균급여
+  from emp e
+  where sal < (select avg(sal) from emp where deptno=e.deptno)
+  order by deptno;
+  
+  -- 서브쿼리가 위치하는 곳에 따라 분류
+  --1) 일반서브쿼리 : select절에 위치 (컬럼역할)
+  select ename, (select dname from dept d where d.deptno=e.deptno) as dname
+  from emp e
+  where job='부장';
+  --2) 인라인뷰 :  from절에 위치 (테이블같은 역할)
+  -- 사원들의 평균 급여보다는 높고 최대 급여보다는 낮은 급여를 받는 사원들을 조회
+  select e.empno, e.ename, e.sal
+  from emp e, (select avg(sal) avgs, max(sal) maxs from emp) e2 --인라인 뷰(View)
+  where e.sal > e2.avgs and e.sal < e2.maxs
+  order by e.sal desc;
+  
+  -- 직책(job)이 '사원'인 사람들이 어떤 부서에 근무하는지를 조회(사원이름, 직책, 부서이름 조회)
+  --1) 조인방식
+  select ename, job, dname
+  from emp e, dept d
+  where e.deptno=d.deptno and job='사원';
+  
+  --2) from절 서브쿼리방식
+  select ename, job, dname
+  from (select ename, job, deptno from emp where job='사원') e, dept d
+  where e.deptno=d.deptno;
+  
+  -- 중첩쿼리 :  where절에 위치
+  -- 사원들의 평균 급여보다는 높고 최대 급여보다는 낮은 급여를 받는 사원들을 조회
+  select e.empno, e.ename, e.sal
+  from emp e
+  where e.sal > (select avg(sal) avgs from emp) and e.sal < (select max(sal) maxs from emp)
+  order by e.sal desc;
+  
+  --테이블 생성 : create table 테이블명 ();
+  create table t_emp(
+  id number(5) not null,
+  name varchar2(25),
+  salary number(7,2),
+  phone varchar2(15),
+  dept_name varchar2(25)
+  );
+  
+  select * from tab;
+  
+  --테이블명 수정 : rename A to B
+  rename t_emp to s_emp;
+  
+  --테이블에 데이터 입력 : insert into 테이블명 (컬럼,..) values(값,..)
+  insert into s_emp values (100, '이상헌', 2000, '010-222-3333', '개발부');
+  insert into s_emp values (101, '최순철', 3000, '010-333-4444', '총무부');
+  insert into s_emp values (102, '장혜숙', 4000, '010-444-5555', '영업부');
+  insert into s_emp (id, name) values (300, '김철수');
+  
+  select * from s_emp;
+  
+  -- 테이블에 컬럼 추가 : alter table 테이블명 add(컬럼 데이터타입)
+  alter table s_emp add(hire_date date);
+  
+  --컬럼 수정 : alter table 테이블명 modify (컬럼 데이터타입)
+  alter table s_emp modify (phone varchar2(20));
+  --작은값에서 큰값으로의 변경은 괜찮지만 반대는 문제가 생김
+  
+  
+  --컬럼 이름 수정 : alter table 테이블명 rename column 컬럼1 to 컬럼2
+  alter table s_emp rename column id to t_id;
+  
+  --컬럼 삭제 : alter table 테이블명 drop column 컬럼명
+  alter table s_emp drop column dept_name;
+  
+  select * from s_emp;
+  --alter는 트랜잭션의 대상이 아니기 때문에 복구할 수도 없다.
+  
+  -- DML문 : insert, update, delete
+  --1) 데이터수정 : update 테이블명 set 컬럼=수정할값 where 조건
+  update s_emp set hire_date=sysdate where t_id=100;
+  
+  --입사일자가 입력되지 않은 null 레코드 수정
+  update s_emp set hire_date=sysdate 
+  where hire_date is null;
+  
+  insert into s_emp(t_id, hire_date) values(400, sysdate);
+   select * from s_emp;
+   
+   -- 데이터 삭제 : delete from 테이블명 where 조건
+   delete from s_emp where t_id=400;
+   
+   -- s_emp 테이블에서
+   -- e-mail을 관리하기 위해 mailid컬럼을 10byte로 추가
+   alter table s_emp add (mailid varchar2(10));
+   
+   -- mailid 컬럼을 20byte로 수정
+   alter table s_emp modify (mailid varchar2(20));
+   
+   -- mailid 컬럼명을 e_mail로 수정
+   alter table s_emp rename column mailid to e_mail;
+   
+   -- s_emp 테이블명을 t_emp로 변경
+   rename s_emp to t_emp;
+   
+   select * from t_emp;
+   
+   --제약조건(constraint)
+   --제약조건을 반영한 테이블 생성
+   create table c_emp(
+   id number(5) constraint c_emp_id_pk primary key,
+   name varchar2(25) constraint c_emp_name_nn not null,
+   salary number(7,2),
+   phone varchar2(15) constraint c_emp_phone_ck check(phone like '3429-%'),
+   dept_id number(7) constraint c_emp_dept_id_fk references dept(deptno)
+   );
+   
+   --제약조건의 이름 검색
+   select constraint_name from user_constraints;
+   
+   select * from user_constraints where table_name='C_EMP'; --대문자로 테이블명을 처리
+   
+   --제약조건은 수정은 안됨, 삭제만 가능
+   alter table c_emp drop constraint c_emp_name_nn;
+   
+   --제약조건 추가
+   alter table c_emp add constraint c_emp_name_un unique(name);
+   -- (주의 :  not null 제약조건은 add가 아닌 modify를 써야함)
+   alter table c_emp modify (name varchar2(25) constraint c_emp_name_nn not null);
+   
+   
+   --제약조건 활성화(enable)/ 비활성화(disable)
+   alter table c_emp disable constraint c_emp_name_nn;
+   alter table c_emp enable constraint c_emp_name_nn;
+   --비활성화했던것을 다시 활성화시킬 때 기존에 입력된 중복자료를 삭제해야 함.
+   
+   -- 제약조건의 삭제
+   alter table c_emp drop constraint c_emp_name_nn;
+   
+   --제약조건을 테이블에 나중에 추가하는 방법
+   drop table c_emp;
+   
+   create table c_emp (
+   id number(5),
+   name varchar2(25),
+   salary number(7,2),
+   phone varchar2(15),
+   deptno number(7)
+   );
+   
+   insert into c_emp (id,name) values (1, '김철수');
+   insert into c_emp (id,name) values (1, '김기철');
+   insert into c_emp (id,name) values (1, '김철수');
+   
+   select * from c_emp;
+   delete from c_emp;
+   
+   -- primary key 추가
+   --  alter table 테이블명 add constraint 제약조건이름 제약조건종류(컬럼);
+   alter table c_emp add constraint c_emp_id_pk primary key(id);
+   
+   select * from user_constraints where table_name='C_EMP';
+   insert into c_emp (id,name) values (1, '김철수');
+   insert into c_emp (id,name) values (2, '김기철');
+   
+   -- foreign key 추가
+   alter table c_emp add constraint c_emp_deptno_fk foreign key(deptno) references dept(deptno);
+   
+   insert into c_emp (id,name,deptno) values (9999, '강감찬', 40); -- dept테이블에는 40번 까지만 있는데 50번이 들어오면 에러
+   
+   delete from dept where deptno=40;
+   
+   alter table c_emp drop constraint c_emp_deptno_fk;
+   
+   alter table c_emp add constraint c_emp_deptno_fk foreign key(deptno) references dept(deptno) on delete cascade;
+   
+   select * from dept;
+   select * from c_emp;
+   
+   insert into dept values (40, '전산팀', '인천');
+   
+   commit;
+   
+   --check(조건) 추가
+   alter table c_emp add constraint c_emp_salary_ck check(salary between 100 and 1000);
+   
+   insert into c_emp (id,name,salary) values (3, 'kim', 500);
+   insert into c_emp (id,name,salary) values (4, 'park', 1500);
+
+select * from professor; 
+--문제1] 
+select name, hiredate, dname
+from professor p, department d
+where hiredate > (select hiredate from professor where name = '송도권')
+and p.deptno = d.deptno;
+
+​
+--문제2]
+select name, pay, hiredate
+from professor
+where hiredate = (select hiredate from professor where name = '심슨') and pay < (select pay from professor where name = '조인형');
+
+​
+--문제3]
+select grade, name, height
+from student s
+where height = (select max(height) from student where grade = s.grade)
+order by grade;
+
+--unique 제약조건
+--비교 : primary : unique + not null
+alter table c_emp add constraint  c_emp_name_un unique(name);
+select * from c_emp;
+insert into c_emp(id, name) values (4);
