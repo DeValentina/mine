@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>positionEx</title>
+<style type="text/css">
+/* position :
+static - 정상적인 배치 방법 (기본값, left,right,top,bottom 적용 안됨)
+relative - 상대적인 배치 방법 (직전요소기준 left,right,top,bottom 적용됨) 
+absolute - 절대좌표 배치 방법 (웹브라우저 원점(좌측상단) 기준 적용됨)
+fixed - 스크롤 관계없이 좌표 고정(웹브라우저 원점(좌측상단) 기준 적용됨)
+*/
+#one {
+	position: static; /* static은 생략가능 */
+	background-color: lime;
+	width: 200px;
+	height: 50px;
+}
+
+#two {
+	position: relative;
+	left: 120px;
+	top: 70px;
+	background-color: olive;
+	width: 200px;
+	height: 50px;
+}
+#three {
+	position: absolute;
+	left: 80px;
+	top: 50px;
+	background-color: yellow;
+	width: 200px;
+	height: 50px;
+}
+
+#four {
+	position: fixed;
+	right: 300px;
+	top: 50px;
+	background-color: purple;
+	width: 200px;
+	height: 50px;
+}
+</style>
+</head>
+<body>
+<p id="one">블록1</p>
+<div id="two">블록2</div>
+<p id="three">블록3</p>
+<div id="four">블록4</div>
+스크롤하기 위해
+<br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br>
+
+
+
+</body>
+</html>
