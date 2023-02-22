@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>selector1</title>
+<!--아래 코드 없으면 jquery 실행 X  -->
+<script src="../include/jquery-3.6.3min.js"></script>
+<!--사이트에서 링크시키는 방식 CDN 방식  -->
+<!-- <script src="https://code.jquery.com  -->
+<script type="text/javascript">
+$(document).ready(function(){//현재 문서가 로딩되면 자동으로 실행(콜백함수)
+//<body onload="함수호출"> 과 같은 효과
+ $("h2").click(function() {
+ 	$(this).hide(); //클릭한 태그가 숨겨짐
+ });	
+});
+
+</script>
+</head>
+<body>
+ <h2>첫번째 h2</h2>
+ <h2>두번째 h2</h2>
+ <h2>세번째 h2</h2>
+
+</body>
+</html>
