@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>imageEx</title>
+<script src="../include/jquery-3.6.3.min.js"></script>
+<script type="text/javascript">
+$(function() {
+	$("#small a").click(function(e) {//이벤트 정보를 저장할 변수 e.
+		e.preventDefault();//기본효과를 막음(a태그의 하이퍼링크 기능 제거)
+		//클릭한 하이퍼링크의 href속성값
+		var imgPath= $(this).attr("href");
+		//large태그의 img src속성에 복사
+		$("#large img").attr({
+			src : imgPath
+		});
+	});
+});
+</script>
+</head>
+<body>
+ <h2>Image Change</h2>
+ <div id="wrap">
+  <div id="Large">
+   <a href="#"><img src="../images/01.jpg"></a>
+   </div>
+   <div id="small" style="top: 800px";>
+    <ul>
+     <li><a href="../images/01.jpg"><img src="../images/01.jpg" border="0px"></a></li>
+     <li><a href="../images/02.jpg"><img src="../images/02.jpg" border="0px"></a></li>
+     <li><a href="../images/03.jpg"><img src="../images/03.jpg" border="0px"></a></li>
+     <li><a href="../images/04.jpg"><img src="../images/04.jpg" border="0px"></a></li>
+    </ul>
+   </div>
+</body>
+</html>

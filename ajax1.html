@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ajax1</title>
+<script src="../include/jquery-3.6.3.min.js"></script>
+<script type="text/javascript">
+$(function() {
+	$("#button1").click(function() {
+		var dan = $("#dan").val();
+		$.ajax({
+			type: "post",
+			url : "result.jsp",
+			data : "dan="+dan, //쿼리스트링 방식 ?"변수=값"
+			success : function(data) {//콜백함수(처리 완료시 실행됨)
+				$("#result").html(data); //div태그에 html로 출력
+				}	
+		});
+	});
+	
+})
+</script>
+
+</head>
+<body>
+<h2>동기식(single_thread):실행시 깜빡이는 현상</h2>
+<form action="result.jsp">
+ 단을 입력하세요 : <input type = "text" id = "dan">
+</form> 
+<!--비동기방식은 동시에 진행(백그라운드에서 실행)  -->
+<h2>비동기식(multi thread):실행시 안깜빡임</h2>
+ 단을 입력하세요 : <input type="text" id="dan">
+ <div id="result">결과 출력 영역</div>
+ 
+
+</body>
+</html>
