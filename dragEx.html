@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>dragEx</title>
+<script src="../include/jquery-3.6.3.min.js"></script>
+<script type="text/javascript">
+$(function () {
+	$("#img1").draggable({ //드래그시
+		opacity : "0.3"	
+	});
+	$("#div1").droppable({ //드롭시
+	accept  : "#img1",
+	drop : function () {
+		$(this).text("이미지가 드래그되었습니다.")
+		}
+	});
+});
+
+</script>
+
+<style type="text/css">
+#div {
+	position : absolute;
+	left : 300px;
+	top :50px;
+	width : 300px;
+	height : 300px;
+	border : 1px solid gray;
+}
+</style>
+</head>
+<body>
+
+</body>
+</html>
